@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>My Recipe Carousel</title>
+    <title>Recipe Realm</title>
     <style>
         :root {
             --bg: #f7f7f7;
@@ -157,16 +157,246 @@
             align-items: center;
             gap: 6px;
             backdrop-filter: blur(6px);
+            z-index: 2000;
         }
 
         .settings-btn span {
             font-size: 14px;
-        .card img {
-            height: 300px;
+        }
+
+        /* 🔥 FULL 3D LOADING SCREEN: RECIPE REALM */
+
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at top, #f97316 0, #020617 60%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.9s ease, visibility 0.9s ease;
+            perspective: 1400px;
+            overflow: hidden;
+        }
+
+        .loader-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* 3D TITLE: RECIPE REALM */
+
+        .logo-container {
+            position: relative;
+            transform-style: preserve-3d;
+            animation: logoFloat 4s ease-in-out infinite alternate;
+            margin-bottom: 48px;
+        }
+
+        .logo-3d {
+            font-size: 64px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: center;
+            transform-style: preserve-3d;
+        }
+
+        .logo-word {
+            display: flex;
+        }
+
+        .logo-word + .logo-word {
+            margin-left: 22px;
+        }
+
+.logo-letter {
+    position: relative;
+    display: inline-block;
+    padding: 6px 6px;
+    transform-style: preserve-3d;
+    transform: translateZ(46px) rotateX(20deg);
+    font-weight: 900;
+    color: #fefce8; /* soft white */
+    -webkit-text-stroke: 1px rgba(15, 23, 42, 0.9);
+    text-shadow:
+        0 3px 2px rgba(15, 23, 42, 0.95),
+        0 16px 30px rgba(0, 0, 0, 0.9);
+}
+
+        .logo-letter::before {
+            content: attr(data-letter);
+            position: absolute;
+            inset: 0;
+            transform: translateZ(-22px) skewY(12deg);
+            color: rgba(15, 23, 42, 0.9);
+            filter: blur(1px);
+        }
+
+        .logo-glow {
+            position: absolute;
+            inset: -50px -90px;
+            background: radial-gradient(circle at center, rgba(251, 191, 36, 0.4), transparent 60%);
+            filter: blur(14px);
+            transform: translateZ(-50px);
+            opacity: 0.9;
+        }
+
+        @keyframes logoFloat {
+            from {
+                transform: rotateX(18deg) rotateY(-15deg) translateY(-12px);
+            }
+            to {
+                transform: rotateX(26deg) rotateY(18deg) translateY(12px);
+            }
+        }
+
+        /* 3D ROTATING + DRAGGABLE FOOD CUBE */
+
+        .cube-scene {
+            width: 190px;
+            height: 190px;
+            position: relative;
+            transform-style: preserve-3d;
+            margin-top: 4px;
+            cursor: grab;
+        }
+
+        .cube-scene.dragging {
+            cursor: grabbing;
+        }
+
+        .cube {
+            width: 140px;
+            height: 140px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-style: preserve-3d;
+            /* transform set dynamically in JS */
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border-radius: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 52px;
+            box-shadow:
+                0 18px 40px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(148, 163, 184, 0.4);
+            background: radial-gradient(circle at 30% 20%, #0f172a, #0f766e);
+            color: #e5e7eb;
+        }
+
+        .cube-face-front  { transform: translateZ(70px); }
+        .cube-face-back   { transform: rotateY(180deg) translateZ(70px); }
+        .cube-face-right  { transform: rotateY(90deg) translateZ(70px); }
+        .cube-face-left   { transform: rotateY(-90deg) translateZ(70px); }
+        .cube-face-top    { transform: rotateX(90deg) translateZ(70px); }
+        .cube-face-bottom { transform: rotateX(-90deg) translateZ(70px); }
+
+        .cube-shadow {
+            position: absolute;
+            width: 180px;
+            height: 40px;
+            background: radial-gradient(circle, rgba(0, 0, 0, 0.7), transparent 70%);
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            filter: blur(6px);
+            opacity: 0.85;
+        }
+
+        /* LOADER FOOTER TEXT + DOTS */
+
+        .loader-footer {
+            margin-top: 32px;
+            text-align: center;
+            color: #fefce8;
+            font-size: 14px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .loader-footer span.accent {
+            color: #facc15;
+        }
+
+        .loader-dots {
+            display: inline-block;
+            margin-left: 6px;
+        }
+
+        .loader-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: #fed7aa;
+            margin: 0 2px;
+            animation: dotPulse 1.4s infinite ease-in-out;
+        }
+
+        .loader-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotPulse {
+            0%, 100% { transform: translateY(0) scale(0.85); opacity: 0.4; }
+            50%      { transform: translateY(-4px) scale(1.2); opacity: 1; }
         }
     </style>
 </head>
 <body>
+    <!-- 🔥 FULL 3D LOADING SCREEN: RECIPE REALM -->
+    <div id="loader" class="loader-overlay">
+        <div class="logo-container">
+            <div class="logo-glow"></div>
+            <div class="logo-3d">
+                <div class="logo-word">
+                    <span class="logo-letter" data-letter="R">R</span>
+                    <span class="logo-letter" data-letter="E">E</span>
+                    <span class="logo-letter" data-letter="C">C</span>
+                    <span class="logo-letter" data-letter="I">I</span>
+                    <span class="logo-letter" data-letter="P">P</span>
+                    <span class="logo-letter" data-letter="E">E</span>
+                </div>
+                <div class="logo-word">
+                    <span class="logo-letter" data-letter="R">R</span>
+                    <span class="logo-letter" data-letter="E">E</span>
+                    <span class="logo-letter" data-letter="A">A</span>
+                    <span class="logo-letter" data-letter="L">L</span>
+                    <span class="logo-letter" data-letter="M">M</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="cube-scene" id="cubeScene">
+            <div class="cube" id="cube">
+                <div class="cube-face cube-face-front">🍕</div>
+                <div class="cube-face cube-face-back">🥑</div>
+                <div class="cube-face cube-face-right">🍣</div>
+                <div class="cube-face cube-face-left">🍔</div>
+                <div class="cube-face cube-face-top">🧁</div>
+                <div class="cube-face cube-face-bottom">🥗</div>
+            </div>
+            <div class="cube-shadow"></div>
+        </div>
+
+        <div class="loader-footer">
+            <span class="accent">Entering Recipe Realm</span>
+            <span class="loader-dots">
+                <span class="loader-dot"></span>
+                <span class="loader-dot"></span>
+                <span class="loader-dot"></span>
+            </span>
+        </div>
+    </div>
+
     <a href="{{ url_for('settings') }}" class="settings-btn">
         <span>⚙</span> Settings
     </a>
@@ -205,7 +435,7 @@
             const showDescriptions = localStorage.getItem("showDescriptions");
             return {
                 theme,
-                showDescriptions: showDescriptions === null ? true : showDescriptions === "true",
+                showDescriptions: showDescriptions === null ? true : showDescriptions === "true"
             };
         }
 
@@ -232,7 +462,6 @@
             nameEl.textContent = recipe.name;
             descEl.textContent = recipe.description;
 
-            // Show / hide description based on settings
             if (settings.showDescriptions) {
                 descEl.style.display = "block";
             } else {
@@ -268,7 +497,113 @@
         });
 
         updateRecipe();
+
+        // 🔄 3D CUBE ROTATION (AUTO + DRAG)
+
+        const cube = document.getElementById("cube");
+        const cubeScene = document.getElementById("cubeScene");
+
+        let rotX = -30;
+        let rotY = 35;
+
+        function applyCubeTransform() {
+            cube.style.transform =
+                `translate(-50%, -50%) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        }
+        applyCubeTransform();
+
+        let autoRotate = true;
+        let lastTime = null;
+
+        function animateCube(time) {
+            if (autoRotate) {
+                if (lastTime != null) {
+                    const delta = time - lastTime; // ms
+                    rotY += delta * 0.02;  // slow spin
+                    applyCubeTransform();
+                }
+                lastTime = time;
+            } else {
+                lastTime = time;
+            }
+            requestAnimationFrame(animateCube);
+        }
+        requestAnimationFrame(animateCube);
+
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let startRotX = rotX;
+        let startRotY = rotY;
+
+        function startDrag(x, y) {
+            isDragging = true;
+            autoRotate = false;
+            startX = x;
+            startY = y;
+            startRotX = rotX;
+            startRotY = rotY;
+            cubeScene.classList.add("dragging");
+        }
+
+        function moveDrag(x, y) {
+            if (!isDragging) return;
+            const dx = x - startX;
+            const dy = y - startY;
+            rotY = startRotY + dx * 0.3;     // horizontal drag = rotate Y
+            rotX = startRotX - dy * 0.3;     // vertical drag = rotate X
+            applyCubeTransform();
+        }
+
+        function endDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+            cubeScene.classList.remove("dragging");
+            // Resume gentle auto-rotate after a pause
+            setTimeout(() => {
+                autoRotate = true;
+                lastTime = null;
+            }, 1500);
+        }
+
+        // Mouse events
+        cubeScene.addEventListener("mousedown", (e) => {
+            startDrag(e.clientX, e.clientY);
+        });
+
+        window.addEventListener("mousemove", (e) => {
+            moveDrag(e.clientX, e.clientY);
+        });
+
+        window.addEventListener("mouseup", endDrag);
+
+        // Touch events (for trackpads / touchscreens)
+        cubeScene.addEventListener("touchstart", (e) => {
+            const t = e.touches[0];
+            startDrag(t.clientX, t.clientY);
+        }, { passive: true });
+
+        window.addEventListener("touchmove", (e) => {
+            if (!isDragging) return;
+            const t = e.touches[0];
+            moveDrag(t.clientX, t.clientY);
+        }, { passive: true });
+
+        window.addEventListener("touchend", endDrag);
+
+        // ⏱ Keep loading screen visible longer for full 3D effect
+        window.addEventListener("load", () => {
+            const loader = document.getElementById("loader");
+            if (loader) {
+                setTimeout(() => {
+                    loader.classList.add("hidden");
+                }, 6000); // 6 seconds
+            }
+        });
     </script>
 </body>
 </html>
+
+
+
 
