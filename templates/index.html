@@ -4,9 +4,18 @@
     <meta charset="UTF-8" />
     <title>My Recipe Carousel</title>
     <style>
+        :root {
+            --bg: #f7f7f7;
+            --card-bg: #ffffff;
+            --text: #111827;
+            --accent: #4CAF50;
+            --accent-soft: #e5f7eb;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            background: #f7f7f7;
+            background: var(--bg);
+            color: var(--text);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -14,13 +23,57 @@
             margin: 0;
         }
 
+        /* THEMES */
+
+        body.theme-light {
+            --bg: #f7f7f7;
+            --card-bg: #ffffff;
+            --text: #111827;
+            --accent: #4CAF50;
+            --accent-soft: #e5f7eb;
+        }
+
+        body.theme-dark {
+            --bg: #020617;
+            --card-bg: #0f172a;
+            --text: #e5e7eb;
+            --accent: #38bdf8;
+            --accent-soft: #0b1120;
+        }
+
+        body.theme-sunset {
+            --bg: radial-gradient(circle at top, #f97316 0, #1e293b 55%);
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --text: #f9fafb;
+            --accent: #f97316;
+            --accent-soft: rgba(248, 171, 94, 0.2);
+        }
+
+        body.theme-forest {
+            --bg: radial-gradient(circle at top, #22c55e 0, #022c22 55%);
+            --card-bg: rgba(6, 78, 59, 0.95);
+            --text: #ecfdf5;
+            --accent: #a3e635;
+            --accent-soft: rgba(74, 222, 128, 0.18);
+        }
+
+        body.theme-ocean {
+            --bg: radial-gradient(circle at top, #22d3ee 0, #0f172a 55%);
+            --card-bg: rgba(15, 23, 42, 0.95);
+            --text: #e0f2fe;
+            --accent: #38bdf8;
+            --accent-soft: rgba(56, 189, 248, 0.18);
+        }
+
         .card {
-            background: white;
+            background: var(--card-bg);
             padding: 20px;
             border-radius: 16px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
             max-width: 400px;
+            width: 90%;
             text-align: center;
+            backdrop-filter: blur(8px);
         }
 
         img {
@@ -37,7 +90,8 @@
         p {
             margin-top: 0;
             margin-bottom: 16px;
-            color: #555;
+            color: var(--text);
+            opacity: 0.9;
         }
 
         .buttons {
@@ -56,16 +110,18 @@
         }
 
         #prevBtn, #nextBtn {
-            background: #eee;
+            background: var(--accent-soft);
+            color: var(--text);
         }
 
         #heartBtn {
             font-size: 24px;
             background: transparent;
+            color: var(--text);
         }
 
         .liked {
-            color: red;
+            color: #ef4444;
         }
 
         .add-wrapper {
@@ -76,7 +132,7 @@
             display: inline-block;
             padding: 8px 14px;
             border-radius: 999px;
-            background: #4CAF50;
+            background: var(--accent);
             color: white;
             text-decoration: none;
             font-size: 14px;
@@ -86,12 +142,35 @@
             opacity: 0.9;
         }
 
+        /* SETTINGS BUTTON (top-right) */
+        .settings-btn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #e5e7eb;
+            text-decoration: none;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(6px);
+        }
+
+        .settings-btn span {
+            font-size: 14px;
         .card img {
             height: 300px;
         }
     </style>
 </head>
 <body>
+    <a href="{{ url_for('settings') }}" class="settings-btn">
+        <span>⚙</span> Settings
+    </a>
+
     <div class="card">
         <img id="recipeImage"
              src="{{ url_for('static', filename='images/' + recipes[0].image) }}"
@@ -112,10 +191,29 @@
     </div>
 
     <script>
-        // Recipes from Python (as JSON string, then parsed)
-        const recipeData = JSON.parse('{{ recipes | tojson | safe }}');
+        // THEME + SETTINGS HELPERS
+        const THEMES = ["light", "dark", "sunset", "forest", "ocean"];
 
-        // Base URL for images
+        function applyTheme(theme) {
+            if (!THEMES.includes(theme)) theme = "light";
+            document.body.classList.remove(...THEMES.map(t => "theme-" + t));
+            document.body.classList.add("theme-" + theme);
+        }
+
+        function loadSettings() {
+            const theme = localStorage.getItem("theme") || "light";
+            const showDescriptions = localStorage.getItem("showDescriptions");
+            return {
+                theme,
+                showDescriptions: showDescriptions === null ? true : showDescriptions === "true",
+            };
+        }
+
+        const settings = loadSettings();
+        applyTheme(settings.theme);
+
+        // CAROUSEL LOGIC
+        const recipeData = JSON.parse('{{ recipes | tojson | safe }}');
         const imageBase = "{{ url_for('static', filename='images/') }}";
 
         let currentIndex = 0;
@@ -133,6 +231,13 @@
             imgEl.src = imageBase + recipe.image;
             nameEl.textContent = recipe.name;
             descEl.textContent = recipe.description;
+
+            // Show / hide description based on settings
+            if (settings.showDescriptions) {
+                descEl.style.display = "block";
+            } else {
+                descEl.style.display = "none";
+            }
 
             if (liked.has(currentIndex)) {
                 heartBtn.textContent = "♥";
@@ -162,7 +267,6 @@
             updateRecipe();
         });
 
-        // Initialize view
         updateRecipe();
     </script>
 </body>

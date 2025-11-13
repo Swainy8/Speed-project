@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Settings</title>
+    <style>
+        :root {
+            --bg: #f7f7f7;
+            --card-bg: #ffffff;
+            --text: #111827;
+            --accent: #4CAF50;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        body.theme-light {
+            --bg: #f7f7f7;
+            --card-bg: #ffffff;
+            --text: #111827;
+            --accent: #4CAF50;
+        }
+
+        body.theme-dark {
+            --bg: #020617;
+            --card-bg: #0f172a;
+            --text: #e5e7eb;
+            --accent: #38bdf8;
+        }
+
+        body.theme-sunset {
+            --bg: radial-gradient(circle at top, #f97316 0, #1e293b 55%);
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --text: #f9fafb;
+            --accent: #f97316;
+        }
+
+        body.theme-forest {
+            --bg: radial-gradient(circle at top, #22c55e 0, #022c22 55%);
+            --card-bg: rgba(6, 78, 59, 0.95);
+            --text: #ecfdf5;
+            --accent: #a3e635;
+        }
+
+        body.theme-ocean {
+            --bg: radial-gradient(circle at top, #22d3ee 0, #0f172a 55%);
+            --card-bg: rgba(15, 23, 42, 0.95);
+            --text: #e0f2fe;
+            --accent: #38bdf8;
+        }
+
+        .settings-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+            max-width: 450px;
+            width: 90%;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .theme-option {
+            border-radius: 12px;
+            padding: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .theme-option input {
+            margin: 0;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+        }
+
+        .toggle-row label {
+            font-weight: normal;
+        }
+
+        .buttons {
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 14px;
+            background: var(--accent);
+            color: white;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--text);
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-card">
+        <h1>Settings</h1>
+
+        <form id="settingsForm">
+            <h2>Theme</h2>
+            <div class="theme-options">
+                <label class="theme-option">
+                    <input type="radio" name="theme" value="light" />
+                    Light
+                </label>
+                <label class="theme-option">
+                    <input type="radio" name="theme" value="dark" />
+                    Dark
+                </label>
+                <label class="theme-option">
+                    <input type="radio" name="theme" value="sunset" />
+                    Sunset Glow
+                </label>
+                <label class="theme-option">
+                    <input type="radio" name="theme" value="forest" />
+                    Forest Mist
+                </label>
+                <label class="theme-option">
+                    <input type="radio" name="theme" value="ocean" />
+                    Deep Ocean
+                </label>
+            </div>
+
+            <h2>Recipe Display</h2>
+            <div class="toggle-row">
+                <span>Show recipe descriptions</span>
+                <label>
+                    <input type="checkbox" id="showDescriptions" />
+                    Enabled
+                </label>
+            </div>
+
+            <div class="buttons">
+                <a href="{{ url_for('index') }}">← Back</a>
+                <button type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const THEMES = ["light", "dark", "sunset", "forest", "ocean"];
+
+        function applyTheme(theme) {
+            if (!THEMES.includes(theme)) theme = "light";
+            document.body.classList.remove(...THEMES.map(t => "theme-" + t));
+            document.body.classList.add("theme-" + theme);
+        }
+
+        function loadSettings() {
+            const theme = localStorage.getItem("theme") || "light";
+            const showDescriptions = localStorage.getItem("showDescriptions");
+            return {
+                theme,
+                showDescriptions: showDescriptions === null ? true : showDescriptions === "true",
+            };
+        }
+
+        function saveSettings(theme, showDescriptions) {
+            localStorage.setItem("theme", theme);
+            localStorage.setItem("showDescriptions", showDescriptions ? "true" : "false");
+        }
+
+        const form = document.getElementById("settingsForm");
+        const themeInputs = form.elements["theme"];
+        const showDescCheckbox = document.getElementById("showDescriptions");
+
+        const currentSettings = loadSettings();
+        applyTheme(currentSettings.theme);
+
+        // Set initial UI
+        for (const input of themeInputs) {
+            if (input.value === currentSettings.theme) {
+                input.checked = true;
+            }
+        }
+        showDescCheckbox.checked = currentSettings.showDescriptions;
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            let chosenTheme = "light";
+            for (const input of themeInputs) {
+                if (input.checked) {
+                    chosenTheme = input.value;
+                    break;
+                }
+            }
+
+            const showDescriptions = showDescCheckbox.checked;
+
+            saveSettings(chosenTheme, showDescriptions);
+            applyTheme(chosenTheme);
+
+            // Go back to main page
+            window.location.href = "{{ url_for('index') }}";
+        });
+    </script>
+</body>
+</html>

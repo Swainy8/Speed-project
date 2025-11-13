@@ -4,9 +4,17 @@
     <meta charset="UTF-8" />
     <title>Add Recipe</title>
     <style>
+        :root {
+            --bg: #f7f7f7;
+            --card-bg: #ffffff;
+            --text: #111827;
+            --accent: #4CAF50;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            background: #f7f7f7;
+            background: var(--bg);
+            color: var(--text);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -14,13 +22,48 @@
             margin: 0;
         }
 
+        body.theme-light {
+            --bg: #f7f7f7;
+            --card-bg: #ffffff;
+            --text: #111827;
+            --accent: #4CAF50;
+        }
+
+        body.theme-dark {
+            --bg: #020617;
+            --card-bg: #0f172a;
+            --text: #e5e7eb;
+            --accent: #38bdf8;
+        }
+
+        body.theme-sunset {
+            --bg: radial-gradient(circle at top, #f97316 0, #1e293b 55%);
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --text: #f9fafb;
+            --accent: #f97316;
+        }
+
+        body.theme-forest {
+            --bg: radial-gradient(circle at top, #22c55e 0, #022c22 55%);
+            --card-bg: rgba(6, 78, 59, 0.95);
+            --text: #ecfdf5;
+            --accent: #a3e635;
+        }
+
+        body.theme-ocean {
+            --bg: radial-gradient(circle at top, #22d3ee 0, #0f172a 55%);
+            --card-bg: rgba(15, 23, 42, 0.95);
+            --text: #e0f2fe;
+            --accent: #38bdf8;
+        }
+
         .form-card {
-            background: white;
+            background: var(--card-bg);
             padding: 20px;
             border-radius: 16px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
             max-width: 400px;
-            width: 100%;
+            width: 90%;
         }
 
         h1 {
@@ -58,23 +101,47 @@
             border-radius: 999px;
             cursor: pointer;
             font-size: 14px;
-            background: #4CAF50;
+            background: var(--accent);
             color: white;
         }
 
         a {
             text-decoration: none;
-            color: #555;
+            color: var(--text);
         }
 
         .error {
-            color: red;
+            color: #ef4444;
             margin-top: 10px;
             text-align: center;
+        }
+
+        .settings-btn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #e5e7eb;
+            text-decoration: none;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(6px);
+        }
+
+        .settings-btn span {
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
+    <a href="{{ url_for('settings') }}" class="settings-btn">
+        <span>⚙</span> Settings
+    </a>
+
     <div class="form-card">
         <h1>Add Recipe</h1>
 
@@ -95,5 +162,19 @@
             </div>
         </form>
     </div>
+
+    <script>
+        const THEMES = ["light", "dark", "sunset", "forest", "ocean"];
+
+        function applyTheme(theme) {
+            if (!THEMES.includes(theme)) theme = "light";
+            document.body.classList.remove(...THEMES.map(t => "theme-" + t));
+            document.body.classList.add("theme-" + theme);
+        }
+
+        const savedTheme = localStorage.getItem("theme") || "light";
+        applyTheme(savedTheme);
+    </script>
 </body>
 </html>
+
