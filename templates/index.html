@@ -77,10 +77,10 @@
         }
 
         img {
-            width: 100%;
-            border-radius: 12px;
-            object-fit: cover;
-        }
+    width: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+}
 
         h2 {
             margin-top: 16px;
@@ -345,6 +345,14 @@
         .loader-dot:nth-child(2) { animation-delay: 0.2s; }
         .loader-dot:nth-child(3) { animation-delay: 0.4s; }
 
+        .recipe-image {
+    width: 100%;
+    max-width: 100%;
+    height: 260px;      /* change this number for taller/shorter images */
+    object-fit: cover;  /* fills the box and crops edges */
+    display: block;
+}
+
         @keyframes dotPulse {
             0%, 100% { transform: translateY(0) scale(0.85); opacity: 0.4; }
             50%      { transform: translateY(-4px) scale(1.2); opacity: 1; }
@@ -403,8 +411,10 @@
 
     <div class="card">
         <img id="recipeImage"
-             src="{{ url_for('static', filename='images/' + recipes[0].image) }}"
-             alt="Recipe Image" />
+     class="recipe-image"
+     src="{{ url_for('static', filename='images/' + recipes[0].image) }}"
+     alt="Recipe Image" />
+
 
         <h2 id="recipeName">{{ recipes[0].name }}</h2>
         <p id="recipeDescription">{{ recipes[0].description }}</p>
