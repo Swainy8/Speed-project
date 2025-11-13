@@ -67,6 +67,24 @@
         .liked {
             color: red;
         }
+
+        .add-wrapper {
+            margin-top: 16px;
+        }
+
+        .add-btn {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .add-btn:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
@@ -83,61 +101,66 @@
             <button id="heartBtn">♡</button>
             <button id="nextBtn">Next →</button>
         </div>
+
+        <div class="add-wrapper">
+            <a href="{{ url_for('add_recipe') }}" class="add-btn">+ Add Recipe</a>
+        </div>
     </div>
 
- <script>
-    // Recipes from Python (converted to JSON)
-    const recipeData = {{ recipes | tojson }};
+    <script>
+        // Recipes from Python (as JSON string, then parsed)
+        const recipeData = JSON.parse('{{ recipes | tojson | safe }}');
 
-    // Base URL for images
-    const imageBase = "{{ url_for('static', filename='images/') }}";
+        // Base URL for images
+        const imageBase = "{{ url_for('static', filename='images/') }}";
 
-    let currentIndex = 0;
-    const liked = new Set();
+        let currentIndex = 0;
+        const liked = new Set();
 
-    const imgEl = document.getElementById("recipeImage");
-    const nameEl = document.getElementById("recipeName");
-    const descEl = document.getElementById("recipeDescription");
-    const heartBtn = document.getElementById("heartBtn");
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
+        const imgEl = document.getElementById("recipeImage");
+        const nameEl = document.getElementById("recipeName");
+        const descEl = document.getElementById("recipeDescription");
+        const heartBtn = document.getElementById("heartBtn");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
 
-    function updateRecipe() {
-        const recipe = recipeData[currentIndex];
-        imgEl.src = imageBase + recipe.image;
-        nameEl.textContent = recipe.name;
-        descEl.textContent = recipe.description;
+        function updateRecipe() {
+            const recipe = recipeData[currentIndex];
+            imgEl.src = imageBase + recipe.image;
+            nameEl.textContent = recipe.name;
+            descEl.textContent = recipe.description;
 
-        if (liked.has(currentIndex)) {
-            heartBtn.textContent = "♥";
-            heartBtn.classList.add("liked");
-        } else {
-            heartBtn.textContent = "♡";
-            heartBtn.classList.remove("liked");
+            if (liked.has(currentIndex)) {
+                heartBtn.textContent = "♥";
+                heartBtn.classList.add("liked");
+            } else {
+                heartBtn.textContent = "♡";
+                heartBtn.classList.remove("liked");
+            }
         }
-    }
 
-    prevBtn.addEventListener("click", () => {
-        currentIndex = (currentIndex - 1 + recipeData.length) % recipeData.length;
+        prevBtn.addEventListener("click", () => {
+            currentIndex = (currentIndex - 1 + recipeData.length) % recipeData.length;
+            updateRecipe();
+        });
+
+        nextBtn.addEventListener("click", () => {
+            currentIndex = (currentIndex + 1) % recipeData.length;
+            updateRecipe();
+        });
+
+        heartBtn.addEventListener("click", () => {
+            if (liked.has(currentIndex)) {
+                liked.delete(currentIndex);
+            } else {
+                liked.add(currentIndex);
+            }
+            updateRecipe();
+        });
+
+        // Initialize view
         updateRecipe();
-    });
-
-    nextBtn.addEventListener("click", () => {
-        currentIndex = (currentIndex + 1) % recipeData.length;
-        updateRecipe();
-    });
-
-    heartBtn.addEventListener("click", () => {
-        if (liked.has(currentIndex)) {
-            liked.delete(currentIndex);
-        } else {
-            liked.add(currentIndex);
-        }
-        updateRecipe();
-    });
-
-    updateRecipe();
-</script>
-
+    </script>
 </body>
 </html>
+
