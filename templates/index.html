@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>My Recipe Carousel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            max-width: 400px;
+            text-align: center;
+        }
+
+        img {
+            width: 100%;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        h2 {
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #555;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        button {
+            border: none;
+            padding: 10px 16px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #prevBtn, #nextBtn {
+            background: #eee;
+        }
+
+        #heartBtn {
+            font-size: 24px;
+            background: transparent;
+        }
+
+        .liked {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img id="recipeImage"
+             src="{{ url_for('static', filename='images/' + recipes[0].image) }}"
+             alt="Recipe Image" />
+
+        <h2 id="recipeName">{{ recipes[0].name }}</h2>
+        <p id="recipeDescription">{{ recipes[0].description }}</p>
+
+        <div class="buttons">
+            <button id="prevBtn">← Previous</button>
+            <button id="heartBtn">♡</button>
+            <button id="nextBtn">Next →</button>
+        </div>
+    </div>
+
+ <script>
+    // Recipes from Python (converted to JSON)
+    const recipeData = {{ recipes | tojson }};
+
+    // Base URL for images
+    const imageBase = "{{ url_for('static', filename='images/') }}";
+
+    let currentIndex = 0;
+    const liked = new Set();
+
+    const imgEl = document.getElementById("recipeImage");
+    const nameEl = document.getElementById("recipeName");
+    const descEl = document.getElementById("recipeDescription");
+    const heartBtn = document.getElementById("heartBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function updateRecipe() {
+        const recipe = recipeData[currentIndex];
+        imgEl.src = imageBase + recipe.image;
+        nameEl.textContent = recipe.name;
+        descEl.textContent = recipe.description;
+
+        if (liked.has(currentIndex)) {
+            heartBtn.textContent = "♥";
+            heartBtn.classList.add("liked");
+        } else {
+            heartBtn.textContent = "♡";
+            heartBtn.classList.remove("liked");
+        }
+    }
+
+    prevBtn.addEventListener("click", () => {
+        currentIndex = (currentIndex - 1 + recipeData.length) % recipeData.length;
+        updateRecipe();
+    });
+
+    nextBtn.addEventListener("click", () => {
+        currentIndex = (currentIndex + 1) % recipeData.length;
+        updateRecipe();
+    });
+
+    heartBtn.addEventListener("click", () => {
+        if (liked.has(currentIndex)) {
+            liked.delete(currentIndex);
+        } else {
+            liked.add(currentIndex);
+        }
+        updateRecipe();
+    });
+
+    updateRecipe();
+</script>
+
+</body>
+</html>
